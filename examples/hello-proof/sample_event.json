@@ -1,0 +1,19 @@
+{
+  "event_id": "01941234-5678-7abc-def0-123456789abc",
+  "event_type": "order.new",
+  "timestamp": "2026-01-05T12:00:00.123456789Z",
+  "algorithm_id": "trend-follower-v2",
+  "payload": {
+    "symbol": "USDJPY",
+    "side": "buy",
+    "quantity": 100000,
+    "order_type": "limit",
+    "limit_price": 157.250,
+    "time_in_force": "GTC"
+  },
+  "context": {
+    "session_id": "sess-abc123",
+    "sequence_number": 42
+  },
+  "signature": "placeholder-ed25519-signature-base64"
+}

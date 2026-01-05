@@ -1,0 +1,18 @@
+{
+  "transparency_anchor": {
+    "backend_type": "mock",
+    "log_id": "vcp-hello-proof-mock",
+    "leaf_index": 0,
+    "tree_size": 1,
+    "root_hash": "fMYxgUq0GRYDDcOdbHUWOmX1C2xpbbcdgaPGwLaj0zE=",
+    "timestamp_nanos": 1767568637148570624,
+    "inclusion_proof": {
+      "hashes": []
+    }
+  },
+  "debug": {
+    "canonical_json": "{\"algorithm_id\":\"trend-follower-v2\",\"context\":{\"sequence_number\":42,\"session_id\":\"sess-abc123\"},\"event_id\":\"01941234-5678-7abc-def0-123456789abc\",\"event_type\":\"order.new\",\"payload\":{\"limit_price\":157.25,\"order_type\":\"limit\",\"quantity\":100000,\"side\":\"buy\",\"symbol\":\"USDJPY\",\"time_in_force\":\"GTC\"},\"signature\":\"placeholder-ed25519-signature-base64\",\"timestamp\":\"2026-01-05T12:00:00.123456789Z\"}",
+    "canonical_sha256": "hEWZZB3ZbQlEVtblftlADIGeMx/afIvPIIO/+x8kocM=",
+    "leaf_hash": "fMYxgUq0GRYDDcOdbHUWOmX1C2xpbbcdgaPGwLaj0zE="
+  }
+}
