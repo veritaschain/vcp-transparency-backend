@@ -1,7 +1,7 @@
 > **Status correction — 25 October 2026**
 >
 > - This is first-party draft code and specification by VeritasChain Co., Ltd., which operates the VeritasChain Standards Organization (VSO). It targets VCP v1.0, which is superseded by VCP v1.2 (Released, tag `v1.2.0`).
-> - Conformance to any VCP tier, or to VAP, has not been independently established. There are zero external implementations of VAP or any of its profiles, including VCP. Not certified: VSO does not issue certificates, and the only registered Conformity Assessment Body (VeritasChain Co., Ltd.) is not independent of the scheme owner (VAP v1.2 ERRATA E-2026-10-21).
+> - Conformance to any VCP tier, or to VAP, has not been independently established. There are zero external implementations of VAP or any of its profiles, including VCP. Not certified: VSO does not issue certifications itself, and the only registered Conformity Assessment Body (VeritasChain Co., Ltd.) is not independent of the scheme owner (VAP v1.2 ERRATA E-2026-10-21).
 > - `draft-kamimura-scitt-vcp` is an individual Internet-Draft (current revision `-05`), not adopted by the IETF SCITT Working Group or any other IETF working group.
 > - Known limitations: the repository contains no Trillian or Tessera client code. `examples/hello-proof` verifies a mock single-leaf proof (`mock_proof.py`); the `submit_and_prove.py` script named in its README is not in the repository.
 
