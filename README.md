@@ -1,3 +1,10 @@
+> **Status correction — 25 October 2026**
+>
+> - This is first-party draft code and specification by VeritasChain Co., Ltd., which operates the VeritasChain Standards Organization (VSO). It targets VCP v1.0, which is superseded by VCP v1.2 (Released, tag `v1.2.0`).
+> - Conformance to any VCP tier, or to VAP, has not been independently established. There are zero external implementations of VAP or any of its profiles, including VCP. Not certified: VSO does not issue certificates, and the only registered Conformity Assessment Body (VeritasChain Co., Ltd.) is not independent of the scheme owner (VAP v1.2 ERRATA E-2026-10-21).
+> - `draft-kamimura-scitt-vcp` is an individual Internet-Draft (current revision `-05`), not adopted by the IETF SCITT Working Group or any other IETF working group.
+> - Known limitations: the repository contains no Trillian or Tessera client code. `examples/hello-proof` verifies a mock single-leaf proof (`mock_proof.py`); the `submit_and_prove.py` script named in its README is not in the repository.
+
 # vcp-transparency-backend
 
 Transparency log backend adapter for [VeritasChain Protocol (VCP)](https://veritaschain.org) — enabling cryptographically verifiable audit trails for algorithmic trading systems.
@@ -123,8 +130,8 @@ See [ADAPTER_SPEC.md](./ADAPTER_SPEC.md) for detailed technical mapping.
 
 ## Related Resources
 
-- [VCP Specification v1.0](https://github.com/veritaschain/vcp-spec)
-- [IETF Draft: draft-kamimura-scitt-vcp](https://datatracker.ietf.org/doc/draft-kamimura-scitt-vcp/)
+- [VCP Specification](https://github.com/veritaschain/vcp-spec) (this adapter was written against v1.0; current release v1.2)
+- [Individual Internet-Draft: draft-kamimura-scitt-vcp](https://datatracker.ietf.org/doc/draft-kamimura-scitt-vcp/) (not WG-adopted)
 - [Trillian](https://github.com/google/trillian)
 - [Tessera](https://github.com/transparency-dev/trillian-tessera)
 - [transparency.dev](https://transparency.dev)

@@ -1,5 +1,7 @@
 # VCP Transparency Backend Adapter Specification
 
+> **Status correction — 25 October 2026:** This draft targets VCP v1.0, which is superseded by VCP v1.2 (Released, tag `v1.2.0`). The input mapping below has not been updated for v1.2. "VCP v1.0 compliant" below means "structured per VCP v1.0"; no conformance has been established. See the [README](README.md).
+
 **Version:** 0.1-draft  
 **Status:** Seeking community feedback  
 **Date:** 2026-01-05
@@ -8,7 +10,7 @@
 
 ## 1. Inputs
 
-**VCP Event JSON** — Any VCP v1.0 compliant event structure:
+**VCP Event JSON** — An event structured per VCP v1.0 (now superseded by v1.2):
 
 ```json
 {
