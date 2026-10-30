@@ -1,113 +1,61 @@
 # Hello Proof Example
 
-Minimal end-to-end demonstration of VCP → Transparency Log → Proof → Verification.
+> **Status correction — 30 October 2026:** This is a local mock single-leaf proof example. It does not connect to Trillian or Tessera. The bundled event and proof are preserved; a successful run checks their local hash relationship, not log authenticity or VCP/RFC conformance. See the [repository status](../../README.md).
 
 ## Goal
 
-Prove the adapter works by:
-1. Canonicalizing a VCP event (RFC 8785)
-2. Submitting to a local Trillian/Tessera instance
-3. Retrieving an inclusion proof
-4. Verifying the proof client-side
+Demonstrate the following local calculation:
+
+1. Serialize an illustrative event using the bundled serializer.
+2. Compute the domain-separated leaf hash `SHA-256(0x00 || serialized_bytes)`.
+3. Compare it with the root supplied in the bundled single-leaf mock proof.
+
+For this mock, `tree_size` is 1, `leaf_index` is 0 and the inclusion path is empty. No backend submission, proof retrieval or independent checkpoint is involved.
 
 ## Files
 
 | File | Description |
 |------|-------------|
-| `sample_event.json` | Example VCP event (order.new) |
-| `canonical.json` | RFC 8785 canonicalized output |
-| `proof.json` | Retrieved inclusion proof + tree head |
-| `verify.py` | Client-side verification script |
+| `sample_event.json` | Illustrative event with a placeholder signature; not a VCP-conformant event |
+| `canonical.json` | Bundled serializer output for that sample |
+| `canonicalize.py` | Local serializer with known RFC 8785 differences |
+| `mock_proof.py` | Generates a local single-leaf mock proof |
+| `proof.json` | Bundled mock proof; not a proof retrieved from a transparency service |
+| `verify.py` | Local hash comparison and incomplete general inclusion-proof logic |
 
-## Prerequisites
+## Run the Bundled Check
 
-### Option A: Tessera (Recommended)
-
-```bash
-# Clone and build Tessera
-git clone https://github.com/transparency-dev/trillian-tessera
-cd trillian-tessera
-go build ./cmd/example-posix/
-
-# Start local server (uses filesystem storage)
-./example-posix --storage_path=/tmp/tessera-vcp --listen=:8080
-```
-
-### Option B: Trillian v1
+No Trillian/Tessera server or third-party Python package is required for this local example.
 
 ```bash
-# Start Trillian with Docker Compose
-git clone https://github.com/google/trillian
-cd trillian
-docker-compose up -d
-
-# Create a log tree
-go run github.com/google/trillian/cmd/createtree \
-  --admin_server=localhost:8090 \
-  --tree_type=LOG
+python3 -B verify.py sample_event.json proof.json
+# Expected output begins: "✓ Inclusion proof valid"
 ```
 
-## Running the Example
+The printed success message describes this local calculation. It does not establish event authenticity, a log operator's identity, an external timestamp, append-only behavior or VCP conformance.
+
+## Generate a Separate Mock Proof
+
+To generate a new local mock proof without overwriting the bundled `proof.json`:
 
 ```bash
-# 1. Canonicalize the event
-python3 canonicalize.py sample_event.json > canonical.json
-
-# 2. Submit to transparency log and get proof
-python3 submit_and_prove.py canonical.json > proof.json
-
-# 3. Verify the proof
-python3 verify.py sample_event.json proof.json
-# Expected output: "✓ Inclusion proof valid"
+python3 -B mock_proof.py sample_event.json > proof.generated.json
+python3 -B verify.py sample_event.json proof.generated.json
 ```
 
-## Expected Output: proof.json
+`timestamp_nanos` in the generated proof comes from the local clock. It is not an independently verified timestamp.
 
-```json
-{
-  "transparency_anchor": {
-    "backend_type": "tessera",
-    "log_id": "vcp-hello-proof",
-    "leaf_index": 0,
-    "tree_size": 1,
-    "root_hash": "base64...",
-    "timestamp_nanos": 1735689600000000000,
-    "inclusion_proof": {
-      "hashes": []
-    }
-  },
-  "leaf_hash": "base64...",
-  "canonical_bytes_sha256": "base64..."
-}
-```
+## Known Limitations
 
-Note: For a single-leaf tree, the inclusion proof is empty (leaf hash = root hash).
+- **Illustrative event:** the sample does not use the VCP v1.0 event structure. Its signature is a placeholder and its event ID uses a non-RFC UUID variant. The verifier does not validate VCP event structure, event identifiers or signatures.
+- **Canonicalization:** `canonicalize.py` is not fully RFC 8785-conformant. For example, it serializes `1e-6` as `1e-06` instead of `0.000001`, sorts keys by Unicode code points rather than UTF-16 code units, and does not reject NaN or Infinity.
+- **Inclusion proofs:** `verify.py` is not a general-purpose RFC 6962/9162 verifier. It accepts an out-of-range leaf index in a single-leaf tree and fails a valid proof for the last leaf of a three-leaf RFC 6962 tree.
+- **Unauthenticated root:** the root is supplied in the proof being checked. The example does not verify checkpoint signatures, consistency proofs or external anchors.
 
-## Verification Logic
+These limitations are documented without changing the implementation or the bundled sample, canonical output or proof.
 
-```python
-def verify_inclusion(event_json, proof):
-    # 1. Re-canonicalize
-    canonical = canonicalize(event_json)
-    
-    # 2. Compute leaf hash (RFC 6962)
-    leaf_hash = sha256(b'\x00' + canonical)
-    
-    # 3. Walk inclusion proof to root
-    computed_root = leaf_hash
-    for i, sibling in enumerate(proof['inclusion_proof']['hashes']):
-        if proof['leaf_index'] & (1 << i):
-            computed_root = sha256(b'\x01' + sibling + computed_root)
-        else:
-            computed_root = sha256(b'\x01' + computed_root + sibling)
-    
-    # 4. Compare with claimed root
-    return computed_root == proof['root_hash']
-```
+## Proposed Backend Work
 
-## Next Steps
+Backend integration remains unimplemented. The earlier workflow referring to `submit_and_prove.py` cannot be run because that script is not present. See [ADAPTER_SPEC.md](../../ADAPTER_SPEC.md) for the proposed design; consult upstream projects for their current APIs and deployment instructions.
 
-After this works:
-1. Add Ed25519 signature verification
-2. Add consistency proof checking
-3. Package as reusable library
+Event-signature verification, checkpoint authentication and consistency checking remain future work.

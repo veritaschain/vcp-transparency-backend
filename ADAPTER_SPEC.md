@@ -1,6 +1,6 @@
 # VCP Transparency Backend Adapter Specification
 
-> **Status correction — 25 October 2026:** This draft targets VCP v1.0, which is superseded by VCP v1.2 (Released, tag `v1.2.0`). The input mapping below has not been updated for v1.2. "VCP v1.0 compliant" below means "structured per VCP v1.0"; no conformance has been established. See the [README](README.md).
+> **Status correction — 25 October 2026 (clarified 30 October 2026):** This is a proposed adapter design originally targeting VCP v1.0, which is superseded by VCP v1.2 (Released, tag `v1.2.0`). The input JSON below is an illustrative adapter format, not the VCP v1.0 event structure. No VCP or VAP conformance is established. Backend operations and proof packaging below describe proposed behavior, not implemented integrations. See the [README](README.md) for implementation and verification limits.
 
 **Version:** 0.1-draft  
 **Status:** Seeking community feedback  
@@ -10,7 +10,7 @@
 
 ## 1. Inputs
 
-**VCP Event JSON** — An event structured per VCP v1.0 (now superseded by v1.2):
+**Illustrative input JSON** — A simplified adapter example, not a conformant VCP v1.0 or v1.2 event:
 
 ```json
 {
@@ -22,13 +22,13 @@
 }
 ```
 
-The adapter accepts events that have already been signed per VCP specification (Ed25519).
+The proposed adapter is intended to accept already signed events. The bundled mock uses a placeholder signature and a non-RFC UUID variant; it does not validate VCP event structure or signatures.
 
 ---
 
 ## 2. Canonicalization
 
-**Method:** RFC 8785 JSON Canonicalization Scheme (JCS)
+**Proposed method:** RFC 8785 JSON Canonicalization Scheme (JCS). The rules below describe the design target, not the behavior achieved by the bundled example.
 
 ```
 Input:  VCP event JSON (any whitespace/ordering)
@@ -44,7 +44,7 @@ Output: Deterministic UTF-8 bytes (no trailing newline)
    - Strings with minimal escaping
 3. Encode as UTF-8 bytes
 
-**Implementation:** Use `json-canonicalize` (Python), `canonicalize` (Go), or equivalent RFC 8785 library.
+**Implementation status:** The bundled hand-written serializer is not fully RFC 8785-conformant. It differs in number formatting and UTF-16 key ordering and does not reject NaN or Infinity; see the [example's limitations](examples/hello-proof/README.md#known-limitations).
 
 ---
 
@@ -88,9 +88,9 @@ identity_hash = SHA-256(canonicalize(event - timestamp))
 
 ## 5. Proof Packaging
 
-The adapter retrieves and packages proofs into VCP-compatible evidence structures.
+A future adapter would retrieve and package backend proofs in the illustrative structure below. Compatibility with VCP has not been established.
 
-### Minimum Required Fields
+### Proposed Fields
 
 ```json
 {
@@ -116,7 +116,7 @@ The adapter retrieves and packages proofs into VCP-compatible evidence structure
 | `checkpoint_signature` | Log operator signature over tree head |
 | `witness_cosignatures` | Third-party witness signatures (Tessera witness network) |
 
-### Verification Flow
+### Proposed Verification Flow
 
 1. Re-canonicalize event → compute expected `leaf_hash`
 2. Walk inclusion proof from `leaf_hash` to `root_hash`
@@ -124,29 +124,18 @@ The adapter retrieves and packages proofs into VCP-compatible evidence structure
 4. (Optional) Verify checkpoint signature
 5. (Optional) Check consistency with previously seen tree head
 
+The local example only compares a computed hash with the root supplied in a mock proof. It does not authenticate a checkpoint, verify event or checkpoint signatures, check consistency or verify an external anchor. Its bounds checks and handling of general RFC 6962 tree shapes are incomplete; it is not a general-purpose RFC 6962/9162 verifier.
+
 ---
 
-## 6. Backend Targets
+## 6. Proposed Backend Targets
 
-### Tessera (Recommended)
+Tessera and Trillian are design targets. This repository contains no client code or working integration for either backend.
 
-| Aspect | Detail |
-|--------|--------|
-| API | Library-based (embedded), HTTP tile serving |
-| Leaf submission | `tessera.Add()` — synchronous, returns index immediately |
-| Proof retrieval | Tile-based, CDN-cacheable |
-| Storage | GCS, S3, MySQL, POSIX filesystem |
-| Status | Active development, expected stable Q1 2025 |
+- [Tessera](https://github.com/transparency-dev/trillian-tessera)
+- [Trillian](https://github.com/google/trillian)
 
-### Trillian v1 (Maintenance)
-
-| Aspect | Detail |
-|--------|--------|
-| API | gRPC (`TrillianLog` service) |
-| Leaf submission | `QueueLeaf` — async, requires signer to sequence |
-| Proof retrieval | `GetInclusionProof`, `GetInclusionProofByHash` |
-| Storage | MySQL/MariaDB only |
-| Status | Stable, feature-frozen, maintenance only |
+Consult the upstream projects for current APIs, storage options and deployment guidance. Backend support and production readiness have not been demonstrated by this repository.
 
 ---
 
@@ -166,4 +155,4 @@ The adapter retrieves and packages proofs into VCP-compatible evidence structure
 - [RFC 6962: Certificate Transparency](https://www.rfc-editor.org/rfc/rfc6962)
 - [Trillian API Documentation](https://github.com/google/trillian/blob/master/docs/api.md)
 - [Tessera Repository](https://github.com/transparency-dev/trillian-tessera)
-- [VCP Specification v1.0](https://github.com/veritaschain/vcp-spec)
+- [VCP Specification v1.0 — historical target](https://github.com/veritaschain/vcp-spec/blob/main/VCP-Specification-v1_0_en.md) (superseded by v1.2)

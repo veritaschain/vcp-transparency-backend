@@ -1,37 +1,38 @@
-> **Status correction — 25 October 2026**
+> **Status correction — 25 October 2026 (verification scope clarified 30 October 2026)**
 >
-> - This is first-party draft code and specification by VeritasChain Co., Ltd., which operates the VeritasChain Standards Organization (VSO). It targets VCP v1.0, which is superseded by VCP v1.2 (Released, tag `v1.2.0`).
-> - Conformance to any VCP tier, or to VAP, has not been independently established. There are zero external implementations of VAP or any of its profiles, including VCP. Not certified: VSO does not issue certifications itself, and the only registered Conformity Assessment Body (VeritasChain Co., Ltd.) is not independent of the scheme owner (VAP v1.2 ERRATA E-2026-10-21).
+> - This is a first-party draft adapter design and local mock example by VeritasChain Co., Ltd., which operates the VeritasChain Standards Organization (VSO). It was drafted with VCP v1.0 as its target; that version is superseded by VCP v1.2 (Released, tag `v1.2.0`).
+> - Conformance to any VCP tier, or to VAP, has not been independently established. VSO's published disclosure dated 25 October 2026 reports zero external implementations of VAP or any of its profiles, including VCP. Not certified: VSO does not issue certifications itself, and the only registered Conformity Assessment Body (VeritasChain Co., Ltd.) is not independent of the scheme owner (VAP v1.2 ERRATA E-2026-10-21).
 > - `draft-kamimura-scitt-vcp` is an individual Internet-Draft (current revision `-05`), not adopted by the IETF SCITT Working Group or any other IETF working group.
-> - Known limitations: the repository contains no Trillian or Tessera client code. `examples/hello-proof` verifies a mock single-leaf proof (`mock_proof.py`); the `submit_and_prove.py` script named in its README is not in the repository.
+> - Implementation scope: the repository contains no Trillian or Tessera client code. `examples/hello-proof` generates and checks a local mock single-leaf proof. Backend submission, proof retrieval, checkpoint-signature verification and consistency checking described below are proposed behavior, not implemented capabilities. `submit_and_prove.py` is absent.
+> - Verification limits: the sample uses an illustrative event format, a placeholder signature and a non-RFC UUID variant. The example does not validate VCP event structure or signatures. Its canonicalizer differs from RFC 8785 in number formatting and UTF-16 key ordering and does not reject NaN or Infinity. Its proof verifier has incomplete bounds checks and does not correctly verify all RFC 6962 tree shapes. A successful run demonstrates the bundled local hash relationship; it does not authenticate a log, establish backend integration or demonstrate VCP/RFC conformance.
 
 # vcp-transparency-backend
 
-Transparency log backend adapter for [VeritasChain Protocol (VCP)](https://veritaschain.org) — enabling cryptographically verifiable audit trails for algorithmic trading systems.
+Draft design for a transparency-log backend adapter for [VeritasChain Protocol (VCP)](https://veritaschain.org), with a local mock inclusion-proof example.
 
-## What This Is
+## Proposed Adapter
 
-This repository provides an adapter layer that connects VCP event streams to transparency log backends (Trillian, Tessera). The adapter:
+This repository sketches an adapter between VCP event streams and transparency log backends (Trillian, Tessera). The proposed adapter would:
 
-- Canonicalizes VCP evidence using RFC 8785 (JSON Canonicalization Scheme)
-- Submits canonicalized data as Merkle tree leaves
-- Retrieves and packages inclusion/consistency proofs into VCP evidence structures
-- Enables third-party verification without trusting the log operator
+- Canonicalize VCP evidence using RFC 8785 (JSON Canonicalization Scheme)
+- Submit canonicalized data as Merkle tree leaves
+- Retrieve and package inclusion/consistency proofs into proposed evidence structures
+- Package evidence for third-party verification
 
-**Use case:** Financial regulators, auditors, and counterparties can independently verify that trading algorithm audit logs have not been altered after the fact.
+**Intended use case:** Evidence for regulators, auditors and counterparties assessing the integrity of trading audit records. The bundled mock does not demonstrate this use case or authenticate an external log checkpoint.
 
 ## Non-Goals
 
 This project does **not**:
 
-- Replace or compete with Trillian/Tessera — we consume their APIs as a backend
+- Replace or compete with Trillian/Tessera — their APIs are proposed backend interfaces
 - Implement a new transparency log protocol — we use established cryptographic primitives
 - Require modifications to VCP core specification — this is an optional external anchoring mechanism
-- Provide a hosted service — this is reference implementation code
+- Provide a hosted service — this repository contains a draft design and local example
 
-VCP is an audit trail format; Trillian/Tessera provides the append-only data structure. This adapter bridges them.
+The proposed adapter would connect VCP event records to an append-only transparency log. That integration is not implemented here.
 
-## Architecture
+## Proposed Architecture
 
 ```
 ┌─────────────────────────────────────────────────────────────────────┐
@@ -67,19 +68,19 @@ VCP is an audit trail format; Trillian/Tessera provides the append-only data str
 └─────────────────────────────────────────────────────────────────────┘
 ```
 
-### Key Design Decisions
+### Proposed Design Choices
 
 | Component | Approach |
 |-----------|----------|
 | **Canonicalization** | RFC 8785 JCS applied before submission |
-| **Signing** | Ed25519 in personality layer (Trillian removed native signing) |
+| **Signing** | Ed25519 in the proposed personality layer; not implemented here |
 | **Leaf value** | Canonicalized VCP event bytes |
 | **Identity hash** | TBD — seeking community input on deduplication strategy |
 | **Proof packaging** | SignedLogRoot + inclusion proof wrapped in VCP evidence |
 
-## Output: VCP Evidence with Transparency Proof
+## Proposed Output Format
 
-The adapter produces VCP evidence packages containing:
+A future adapter could package event data and transparency proofs in the illustrative format below. Its mapping to VCP has not been validated:
 
 ```json
 {
@@ -101,7 +102,7 @@ The adapter produces VCP evidence packages containing:
 }
 ```
 
-Verifiers can:
+The intended verification flow is shown below; the local example does not implement it in full:
 1. Re-canonicalize the event and confirm leaf hash
 2. Validate inclusion proof against root hash
 3. Verify checkpoint signature from log operator
@@ -109,12 +110,12 @@ Verifiers can:
 
 ## Backend Targets
 
-| Backend | Status | Notes |
-|---------|--------|-------|
-| **Tessera** | Recommended | Actively developed, synchronous leaf indexing, CDN-cacheable |
-| **Trillian v1** | Supported | Stable but maintenance-only, async sequencing |
+| Backend | Adapter status in this repository |
+|---------|-----------------------------------|
+| **Tessera** | Proposed target; no client integration implemented |
+| **Trillian v1** | Proposed target; no client integration implemented |
 
-We recommend Tessera for new deployments. Trillian v1 support is provided for environments with existing infrastructure.
+Consult the upstream projects for current APIs and deployment guidance. This repository does not establish backend compatibility or production readiness.
 
 ## Status
 
