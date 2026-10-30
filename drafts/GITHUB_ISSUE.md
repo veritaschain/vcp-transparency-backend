@@ -1,5 +1,7 @@
 # GitHub Issue Draft
 
+> **Dated note — 25 October 2026:** This outreach draft was added to the repository on 5 January 2026. Whether and where it was posted is not recorded in this repository, so its text is left as written. Its description of IETF status is not accurate: `draft-kamimura-scitt-vcp` is an individual Internet-Draft (current revision `-05`), not adopted by the SCITT Working Group, and it is not "going through" or "progressing through" IETF as a SCITT profile. VCP v1.0 is superseded by VCP v1.2 (Released, tag `v1.2.0`). Do not reuse this text without correcting it.
+
 **Repository:** `transparency-dev/trillian-tessera` (preferred) or `google/trillian`
 
 **Title:** VCP: Proposal for Trillian/Tessera-backed transparency log adapter (non-normative)
