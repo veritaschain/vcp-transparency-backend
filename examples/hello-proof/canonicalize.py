@@ -1,6 +1,9 @@
 #!/usr/bin/env python3
 """
-RFC 8785 JSON Canonicalization for VCP events.
+Legacy local example serializer (not fully RFC 8785 conformant).
+
+Changed 2026-11-01: reject non-finite numbers and non-string object keys.
+Existing finite-number formatting and key ordering are preserved.
 
 Usage:
     python3 canonicalize.py sample_event.json > canonical.json
@@ -8,18 +11,16 @@ Usage:
 """
 
 import json
+import math
 import sys
 from typing import Any
 
 def canonicalize(obj: Any) -> str:
     """
-    RFC 8785 JSON Canonicalization Scheme (JCS).
-    
-    Rules:
-    - Object keys sorted lexicographically by UTF-16 code units
-    - No whitespace between tokens
-    - Numbers in shortest form (no trailing zeros, no leading zeros except for 0.x)
-    - Strings with minimal escaping
+    Serialize with this example's existing byte format.
+
+    This differs from JCS for some numbers and supplementary Unicode keys.
+    Do not use it as a general RFC 8785 implementation.
     """
     if obj is None:
         return "null"
@@ -28,6 +29,8 @@ def canonicalize(obj: Any) -> str:
     elif isinstance(obj, int):
         return str(obj)
     elif isinstance(obj, float):
+        if not math.isfinite(obj):
+            raise ValueError("Non-finite numbers cannot be serialized")
         # Handle special cases per RFC 8785
         if obj == 0:
             return "0"
@@ -68,6 +71,8 @@ def canonicalize(obj: Any) -> str:
         elements = [canonicalize(item) for item in obj]
         return "[" + ",".join(elements) + "]"
     elif isinstance(obj, dict):
+        if not all(isinstance(key, str) for key in obj):
+            raise TypeError("JSON object keys must be strings")
         # Sort keys by UTF-16 code units (Python's default sort works for BMP)
         sorted_keys = sorted(obj.keys(), key=lambda k: [ord(c) for c in k])
         pairs = [f'{canonicalize(k)}:{canonicalize(obj[k])}' for k in sorted_keys]

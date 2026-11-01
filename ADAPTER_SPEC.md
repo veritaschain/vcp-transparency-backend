@@ -44,7 +44,7 @@ Output: Deterministic UTF-8 bytes (no trailing newline)
    - Strings with minimal escaping
 3. Encode as UTF-8 bytes
 
-**Implementation status:** The bundled hand-written serializer is not fully RFC 8785-conformant. It differs in number formatting and UTF-16 key ordering and does not reject NaN or Infinity; see the [example's limitations](examples/hello-proof/README.md#known-limitations).
+**Implementation status:** The bundled hand-written serializer is not fully RFC 8785-conformant. It differs in number formatting and UTF-16 key ordering; the local hardening of 1 November 2026 rejects non-finite numbers but does not change the finite-number byte format; see the [example's limitations](examples/hello-proof/README.md#known-limitations).
 
 ---
 
@@ -124,7 +124,7 @@ A future adapter would retrieve and package backend proofs in the illustrative s
 4. (Optional) Verify checkpoint signature
 5. (Optional) Check consistency with previously seen tree head
 
-The local example only compares a computed hash with the root supplied in a mock proof. It does not authenticate a checkpoint, verify event or checkpoint signatures, check consistency or verify an external anchor. Its bounds checks and handling of general RFC 6962 tree shapes are incomplete; it is not a general-purpose RFC 6962/9162 verifier.
+The local example only compares a computed hash with the root supplied in a mock proof. It does not authenticate a checkpoint, verify event or checkpoint signatures, check consistency or verify an external anchor. As of 1 November 2026, local inclusion checks enforce integer bounds, SHA-256 node sizes and exact proof geometry, including odd-sized trees. A local match remains `INDETERMINATE` (CLI exit 2), not authenticated acceptance. This is not a complete RFC 6962/9162 or VCP verifier.
 
 ---
 
