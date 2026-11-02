@@ -1,10 +1,10 @@
-> **Status correction — 25 October 2026 (verification scope clarified 30 October 2026)**
+> **Status correction — 25 October 2026 (verification scope clarified 30 October 2026; local verifier hardened 1 November 2026)**
 >
 > - This is a first-party draft adapter design and local mock example by VeritasChain Co., Ltd., which operates the VeritasChain Standards Organization (VSO). It was drafted with VCP v1.0 as its target; that version is superseded by VCP v1.2 (Released, tag `v1.2.0`).
 > - Conformance to any VCP tier, or to VAP, has not been independently established. VSO's published disclosure dated 25 October 2026 reports zero external implementations of VAP or any of its profiles, including VCP. Not certified: VSO does not issue certifications itself, and the only registered Conformity Assessment Body (VeritasChain Co., Ltd.) is not independent of the scheme owner (VAP v1.2 ERRATA E-2026-10-21).
 > - `draft-kamimura-scitt-vcp` is an individual Internet-Draft (current revision `-05`), not adopted by the IETF SCITT Working Group or any other IETF working group.
 > - Implementation scope: the repository contains no Trillian or Tessera client code. `examples/hello-proof` generates and checks a local mock single-leaf proof. Backend submission, proof retrieval, checkpoint-signature verification and consistency checking described below are proposed behavior, not implemented capabilities. `submit_and_prove.py` is absent.
-> - Verification limits: the sample uses an illustrative event format, a placeholder signature and a non-RFC UUID variant. The example does not validate VCP event structure or signatures. Its canonicalizer differs from RFC 8785 in number formatting and UTF-16 key ordering and does not reject NaN or Infinity. Its proof verifier has incomplete bounds checks and does not correctly verify all RFC 6962 tree shapes. A successful run demonstrates the bundled local hash relationship; it does not authenticate a log, establish backend integration or demonstrate VCP/RFC conformance.
+> - Verification limits: the sample uses an illustrative event format, a placeholder signature and a non-RFC UUID variant. The example does not validate VCP event structure or signatures. Its canonicalizer differs from RFC 8785 in number formatting and UTF-16 key ordering. The local verifier now checks integer bounds, 32-byte digests, exact proof length and odd-tree geometry, and rejects ambiguous or non-finite JSON input. A local match is reported as `INDETERMINATE` (exit 2), because event signatures, checkpoint identity, consistency proofs and external anchors are not checked. It does not authenticate a log, establish backend integration or demonstrate full VCP/CT/JCS conformance.
 
 # vcp-transparency-backend
 
@@ -141,9 +141,13 @@ See [ADAPTER_SPEC.md](./ADAPTER_SPEC.md) for detailed technical mapping.
 
 We welcome feedback via GitHub issues. For design discussions, please join the [transparency.dev Slack](https://transparency.dev/slack/).
 
+## Local Regression Checks
+
+Run `python3 -I -B -m unittest discover -s tests -v` (or `bash examples/hello-proof/test.sh`). The 21 tests include an independent recursive tree/proof oracle over every leaf position in trees of 1–33 leaves, malformed-input cases and subprocess CLI checks. The bundled event, canonical output and proof are unchanged; test-generated output uses temporary files. Passing these tests does not supply the missing backend or authentication integrations.
+
 ## License
 
-Apache 2.0
+[Apache License 2.0](LICENSE), as already declared by this repository. The full license text is now included.
 
 ## Contact
 
